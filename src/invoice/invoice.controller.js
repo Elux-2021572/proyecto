@@ -11,7 +11,7 @@ import Room from "../room/room.model.js";
 export const generateInvoicePDF = async (req, res) => {
     try {
       const token = req.header('Authorization');
-      if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
+      if (!token) return res.status(401).json({ message: 'Token not provided' });
   
       const { uid } = jwt.verify(token.replace("Bearer ", ""), process.env.SECRETORPRIVATEKEY);
   
@@ -24,10 +24,10 @@ export const generateInvoicePDF = async (req, res) => {
         .populate('extraServices')
         .populate('user'); 
   
-      if (!reservation) return res.status(404).json({ message: 'Reservación no encontrada' });
+      if (!reservation) return res.status(404).json({ message: 'Reservation not found' });
   
       if (reservation.user._id.toString() !== uid) {
-        return res.status(403).json({ message: 'No tienes permiso para generar la factura de esta reservación' });
+        return res.status(403).json({ message: 'You are not authorized to generate the invoice for this reservation' });
       }
   
       let invoice = await Invoice.findOne({ reservation: reservationId });
@@ -123,7 +123,7 @@ export const generateInvoicePDF = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al generar la factura', error: error.message });
+      res.status(500).json({ message: 'Error generating invoice', error: error.message });
     }
   };
   
@@ -140,7 +140,7 @@ export const generateInvoicePDF = async (req, res) => {
         .populate('extraServices')
         .populate('user');
   
-      if (!reservation) return res.status(404).json({ message: 'Reservación no encontrada' });
+      if (!reservation) return res.status(404).json({ message: 'Reservation not found' });
   
       let invoice = await Invoice.findOne({ reservation: reservationId });
   
@@ -235,7 +235,7 @@ export const generateInvoicePDF = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al generar la factura', error: error.message });
+      res.status(500).json({ message: 'Error generating invoice', error: error.message });
     }
   };
 
@@ -272,7 +272,7 @@ export const generateInvoicePDF = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al obtener las facturas del hotel', error: error.message });
+      res.status(500).json({ message: 'Error retrieving hotel invoices', error: error.message });
     }
   };
 
@@ -306,7 +306,7 @@ export const generateInvoicePDF = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al obtener las facturas del usuario', error: error.message });
+      res.status(500).json({ message: 'Error retrieving user invoices', error: error.message });
     }
   };
   
@@ -314,13 +314,13 @@ export const generateInvoicePDF = async (req, res) => {
   export const InvoicesForHotelAdmin = async (req, res) => {
     try {
       const token = req.header('Authorization');
-      if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
+      if (!token) return res.status(401).json({ message: 'Token not provided' });
   
       const { uid } = jwt.verify(token.replace("Bearer ", ""), process.env.SECRETORPRIVATEKEY);
       const { hotelId } = req.params;
   
       const hotel = await Hotel.findOne({ _id: hotelId, admin: uid });
-      if (!hotel) return res.status(403).json({ message: 'No tienes permiso para ver las facturas de este hotel' });
+      if (!hotel) return res.status(403).json({ message: 'You are not authorized to view the invoices for this hotel' });
   
       const invoices = await Invoice.find()
         .populate({
@@ -347,23 +347,23 @@ export const generateInvoicePDF = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al listar facturas del hotel', error: error.message });
+      res.status(500).json({ message: 'Error listing hotel invoices', error: error.message });
     }
   };
 
   export const UserInvoicesForHotelAdmin = async (req, res) => {
     try {
       const token = req.header('Authorization');
-      if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
+      if (!token) return res.status(401).json({ message: 'Token not provided' });
   
       const { uid: adminUid } = jwt.verify(token.replace("Bearer ", ""), process.env.SECRETORPRIVATEKEY);
   
       const { userUid } = req.params;
-      if (!userUid) return res.status(400).json({ message: 'Debe proporcionar el uid del usuario' });
+      if (!userUid) return res.status(400).json({ message: 'You must provide the user UID' });
   
       const reservaciones = await Reservation.find({ user: userUid });
       if (!reservaciones.length) {
-        return res.status(404).json({ message: 'Este usuario no tiene reservaciones' });
+        return res.status(404).json({ message: 'This user has no reservations' });
       }
   
       const accesibles = [];
@@ -381,7 +381,7 @@ export const generateInvoicePDF = async (req, res) => {
       }
   
       if (!accesibles.length) {
-        return res.status(403).json({ message: 'No tienes permiso para ver las facturas de este usuario' });
+        return res.status(403).json({ message: 'You do not have permission to view this user invoices.' });
       }
   
       const facturas = await Invoice.find({ reservation: { $in: accesibles } })
@@ -397,8 +397,8 @@ export const generateInvoicePDF = async (req, res) => {
       res.json({ facturas });
   
     } catch (error) {
-      console.error("Error al obtener facturas:", error);
-      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+      console.error("Error getting invoices:", error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
 

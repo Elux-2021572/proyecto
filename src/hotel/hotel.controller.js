@@ -26,13 +26,13 @@ export const searchHotel = async (req, res) => {
       const hotels = await Hotel.find(searchCriteria);
   
       if (hotels.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron hoteles con los criterios indicados' });
+        return res.status(404).json({ message: 'No hotels found with the given criteria' });
       }
   
       res.json(hotels);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error al buscar hoteles' });
+      res.status(500).json({ message: 'Error searching for hotels' });
     }
   };
 
@@ -42,7 +42,7 @@ export const registerHotel = async (req, res) => {
     const { name, address, qualification, category, amenities, admin } = req.body;
 
     if (!name || !address || !qualification || !category || !admin) {
-      return res.status(400).json({ message: 'Faltan datos obligatorios' });
+      return res.status(400).json({ message: 'Missing required fields' });
     }
 
     const newHotel = new Hotel({
@@ -56,10 +56,10 @@ export const registerHotel = async (req, res) => {
 
     await newHotel.save();
 
-    res.status(201).json({ message: 'Hotel registrado correctamente', hotel: newHotel });
+    res.status(201).json({ message: 'Hotel registered successfully', hotel: newHotel });
   } catch (error) {
-    console.error('Error al registrar el hotel:', error);
-    res.status(500).json({ message: 'Error al registrar el hotel', error: error.message });
+    console.error('Error registering the hotel:', error);
+    res.status(500).json({ message: 'Error registering the hotel', error: error.message });
   }
 };
 
@@ -69,37 +69,37 @@ export const registerHotel = async (req, res) => {
       const updateFields = req.body;
   
       const hotel = await Hotel.findById(id);
-      if (!hotel) return res.status(404).json({ message: 'Hotel no encontrado' });
+      if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
   
       Object.assign(hotel, updateFields);
   
       await hotel.save();
   
-      res.json({ message: 'Hotel actualizado correctamente', hotel });
+      res.json({ message: 'Hotel updated successfully', hotel });
     } catch (error) {
-      console.error('Error al actualizar el hotel:', error);
-      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+      console.error('Error updating the hotel:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
 
   export const searchHotelsAdmin = async (req, res) => {
     try {
       const token = req.header('Authorization');
-      if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
+      if (!token) return res.status(401).json({ message: 'Token not provided' });
   
       const { uid } = jwt.verify(token.replace('Bearer ', ''), process.env.SECRETORPRIVATEKEY);
   
       const hoteles = await Hotel.find({ admin: uid, status: true });
   
       if (!hoteles.length) {
-        return res.status(404).json({ message: 'No se encontraron hoteles administrados por este usuario' });
+        return res.status(404).json({ message: 'No hotels found for this admin' });
       }
   
       res.json({ hoteles });
   
     } catch (error) {
-      console.error('Error al buscar hoteles del admin:', error);
-      res.status(500).json({ message: 'Error al obtener los hoteles', error: error.message });
+      console.error('Error searching admin hotels:', error);
+      res.status(500).json({ message: 'Error fetching hotels', error: error.message });
     }
   };
 
@@ -109,7 +109,7 @@ export const registerHotel = async (req, res) => {
   
       const hotel = await Hotel.findById(id);
       if (!hotel) {
-        return res.status(404).json({ message: 'Hotel no encontrado' });
+        return res.status(404).json({ message: 'Hotel not found' });
       }
   
       const habitaciones = await Room.find({ hotel: id });
@@ -125,18 +125,18 @@ export const registerHotel = async (req, res) => {
   
       await Hotel.findByIdAndDelete(id);
   
-      res.json({ message: 'Hotel eliminado junto con sus habitaciones y reservas canceladas' });
+      res.json({ message: 'Hotel deleted along with its rooms and cancelled reservations' });
   
     } catch (error) {
-      console.error('Error al eliminar hotel:', error);
-      res.status(500).json({ message: 'Error al eliminar el hotel', error: error.message });
+      console.error('Error deleting hotel:', error);
+      res.status(500).json({ message: 'Error deleting the hotel', error: error.message });
     }
   };
 
   export const obtenerEstadisticasHotel = async (req, res) => {
     try {
       const token = req.header('Authorization');
-      if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
+      if (!token) return res.status(401).json({ message: 'Token not provided' });
   
       const { uid: adminId } = jwt.verify(token.replace("Bearer ", ""), process.env.SECRETORPRIVATEKEY);
   
@@ -192,8 +192,8 @@ export const registerHotel = async (req, res) => {
       res.json({ estadisticas });
   
     } catch (error) {
-      console.error("Error al obtener estadísticas:", error);
-      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+      console.error("Error fetching statistics:", error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
 
@@ -202,7 +202,7 @@ export const registerHotel = async (req, res) => {
       const { id } = req.params;
   
       const hotel = await Hotel.findById(id).populate('admin', 'name surname email');
-      if (!hotel) return res.status(404).json({ message: 'Hotel no encontrado' });
+      if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
   
       const habitaciones = await Room.find({ hotel: hotel._id });
       const habitacionesIds = habitaciones.map(h => h._id);
@@ -253,7 +253,7 @@ export const registerHotel = async (req, res) => {
       res.json({ estadisticas });
   
     } catch (error) {
-      console.error("Error al obtener estadísticas por hotel ID:", error);
-      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+      console.error("Error fetching statistics by hotel ID:", error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };

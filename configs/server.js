@@ -14,12 +14,14 @@ import invoiceRoutes from "../src/invoice/invoice.routes.js"
 import extraServiceRoutes from "../src/serviceExtra/extraService.routes.js"
 import serviceRoutes from "../src/service/service.routes.js"
 import eventRoutes from "../src/event/event.routes.js"
-import {createDefaultUsers} from "./createDefaultUsers.js"
-import {createDefaultServices} from "./createDefaultServices.js"
+import { createDefaultUsers } from "./createDefaultUsers.js"
+import { createDefaultServices } from "./createDefaultServices.js"
+import { swaggerDocs } from "./swagger.js"; 
 
+const app = express();
 
 const middlewares = (app) => {
-    app.use(express.urlencoded({extended: false}))
+    app.use(express.urlencoded({ extended: false }))
     app.use(express.json())
     app.use(cors())
     app.use(helmet())
@@ -27,8 +29,7 @@ const middlewares = (app) => {
     app.use(apiLimiter)
 }
 
-
-const routes = (app) =>{
+const routes = (app) => {
     app.use("/casaMiaManagement/v1/auth", authRoutes);
     app.use("/casaMiaManagement/v1/user", userRoutes);
     app.use("/casaMiaManagement/v1/hotel", hotelRoutes);
@@ -40,11 +41,10 @@ const routes = (app) =>{
     app.use("/casaMiaManagement/v1/event", eventRoutes);
 }
 
-
-const conectarDB = async () =>{
-    try{
+const conectarDB = async () => {
+    try {
         await dbConnection()
-    }catch(err){
+    } catch (err) {
         console.log(`Database connection failed: ${err}`)
         process.exit(1)
     }
@@ -52,15 +52,18 @@ const conectarDB = async () =>{
 
 export const initiServer = () => {
     const app = express()
-    try{
+    try {
         middlewares(app)
         conectarDB()
         routes(app)
         createDefaultUsers(),
         createDefaultServices(),
+        
+        swaggerDocs(app);
+
         app.listen(process.env.PORT)
         console.log(`Server running on port ${process.env.PORT}`)
-    }catch(err){
+    } catch (err) {
         console.log(`Server init failed: ${err}`)
     }
 }
